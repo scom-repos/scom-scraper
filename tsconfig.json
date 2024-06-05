@@ -1,0 +1,15 @@
+{    
+    "compilerOptions": {
+        "target": "ES2017",        
+        "module": "commonjs",
+        "allowJs": false,
+        "esModuleInterop": true,
+        "experimentalDecorators": true,
+        "forceConsistentCasingInFileNames": true,        
+        "declaration": false,
+        "baseUrl": ".",
+        "outDir": "lib"
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules"]
+}
