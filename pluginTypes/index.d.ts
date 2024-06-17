@@ -113,10 +113,11 @@ declare module "@scom/scom-scraper/twitter/twitterScraper.ts" {
 }
 /// <amd-module name="@scom/scom-scraper" />
 declare module "@scom/scom-scraper" {
-    import { IScraperConfig, ITweet } from "@scom/scom-scraper/interface.ts";
+    import { IScraperConfig, ITweet, ITwitterConfig } from "@scom/scom-scraper/interface.ts";
     export default class ScraperManager {
         private _twitterScraper;
         constructor(config: IScraperConfig);
         scrapTweetsByUsername(username: string): Promise<ITweet[]>;
     }
+    export { ITweet, ITwitterConfig, IScraperConfig };
 }

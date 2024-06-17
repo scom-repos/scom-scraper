@@ -488,7 +488,7 @@ define("@scom/scom-scraper/twitter/twitterScraper.ts", ["require", "exports", "p
         }
         async scrapTweetsByUsername(username) {
             const browser = await puppeteer_1.default.launch({
-                headless: false,
+                headless: true,
                 args: ["--no-sandbox"],
                 defaultViewport: {
                     width: 1920,

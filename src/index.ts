@@ -12,3 +12,5 @@ export default class ScraperManager {
         return this._twitterScraper.scrapTweetsByUsername(username);
     }
 }
+
+export {ITweet, ITwitterConfig, IScraperConfig};

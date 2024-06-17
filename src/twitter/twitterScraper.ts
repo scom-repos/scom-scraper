@@ -20,7 +20,7 @@ export default class TwitterScraper {
 
     async scrapTweetsByUsername(username: string): Promise<ITweet[]> {
         const browser = await puppeteer.launch({
-            headless: false,
+            headless: true,
             args: ["--no-sandbox"],
             defaultViewport: {
                 width: 1920,
