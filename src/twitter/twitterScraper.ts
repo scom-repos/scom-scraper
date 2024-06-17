@@ -64,7 +64,13 @@ export default class TwitterScraper {
         let hasMore = true;
         do {
             try {
-                response = await page.waitForResponse(res => res.url().indexOf('UserTweets') >= 0 && res.request().method() === 'GET');
+                try {
+                    response = await page.waitForResponse(res => res.url().indexOf('UserTweets') >= 0 && res.request().method() === 'GET');
+                }
+                catch(e) {
+                    if(tweets.length > 0)
+                        return tweets;
+                }
                 if (!response.ok()) {
                     console.log('Failed', await response.text());
                     await this.logout(page);
@@ -83,7 +89,7 @@ export default class TwitterScraper {
                 hasMore = this.hasMoreTweets(responseData);
                 if (hasMore) {
                     console.log("Scrolling down");
-                    await this.sleep(1000)
+                    await this.sleep(2000)
                     await page.evaluate(() => {
                         window.scrollTo(0, document.body.scrollHeight);
                     });
