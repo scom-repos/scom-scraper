@@ -6,123 +6,98 @@ export default class TwitterScraper {
     private _config: ITwitterConfig;
     private parser: Parser;
     private _currentTwitterAccount: ITwitterAccount;
+    private _currentTwitterAccountIndex: number = -1;
 
 
     constructor(config: ITwitterConfig) {
         this._config = config;
         if (config.twitterAccounts?.length > 0) {
             this._currentTwitterAccount = config.twitterAccounts[0];
+            this._currentTwitterAccountIndex = 0;
         }
         this.parser = new Parser();
     }
 
     async scrapTweetsByUsername(username: string): Promise<ITweet[]> {
-        let tweets: ITweet[] = [];
+        const browser = await puppeteer.launch({
+            headless: false,
+            args: ["--no-sandbox"],
+            defaultViewport: {
+                width: 1920,
+                height: 1080
+            }
+        });
         try {
-            // Launch the browser and open a new blank page
-            const browser = await puppeteer.launch({
-                headless: false,
-                args: ["--no-sandbox"],
-                defaultViewport: {
-                    width: 1920,
-                    height: 1080
-                }
-            });
-
             const page: Page = await browser.newPage();
             await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36');
             await page.setJavaScriptEnabled(true);
-
-            await this.login(page);
-            await page.waitForNavigation();
-            await this.redirect(page, `https://x.com/${username}`);
-
-            let response = null;
-            let hasMore = true;
-            do {
-                response = await page.waitForResponse(res => res.url().indexOf('UserTweets') && res.request().method() === 'GET');
-                if(!response.ok) {
-                    // await this.logout(page);
-                    console.log('Ng ok')
-                }
-                const responseData = await response.json();
-                console.log(responseData);
-                const content = this.parser.parseTimelineTweetsV2(responseData);
-                tweets = [...tweets, ...content.tweets];
-                hasMore = this.hasMoreTweets(responseData);
-                if (hasMore) {
-                    await page.evaluate(() => {
-                        window.scrollTo(0, document.body.scrollHeight);
-                    });
-                }
-            } while (hasMore)
+            const tweets = await this.scrap(browser, page, username);
             return tweets;
         }
         catch (e) {
             return [];
         }
+        finally {
+            console.log('closing browser');
+            await browser.close();
+        }
     }
 
     private hasMoreTweets(data: any) {
-        const instructions = data.user.result.timeline_v2.timeline.instructions;
+        const instructions = data.data.user.result.timeline_v2.timeline.instructions;
         const timelineAddEntries = instructions.filter(v => v.type === "TimelineAddEntries");
         if (timelineAddEntries.length === 0) return false;
         return timelineAddEntries[0].entries?.length > 2;
     }
 
-    private scrap(twitterAccount: ITwitterAccount, browser: Browser, page: Page, username: string): Promise<ITweet[]> {
-        return new Promise(async (resolve, reject) => {
-            let tweets: ITweet[] = [];
-            const tweetSelector = '[data-testid="tweet"]';
+    private async scrap(browser: Browser, page: Page, username: string): Promise<ITweet[]> {
+        let tweets: ITweet[] = [];
+        console.log('scrap')
+        await this.login(page);
+        await page.waitForNavigation();
+        await this.redirect(page, `https://x.com/${username}`);
 
-            // let timeout;
-            // const resetTimeout = () => {
-            //     if (timeout)
-            //         clearTimeout(timeout);
-            //     timeout = setTimeout(async () => {
-            //         await this.logout(page);
-            //         // await browser.close();
-            //         resolve(tweets);
-            //     }, 7000)
-            // }
-
-            // await this.login(twitterAccount, page);
-
-            // await page.waitForNavigation();
-
-            // console.log('Home page');
-
-            const userTweetsURL = [];
-
-            page.on('response', async res => {
-                if (res.url().indexOf('UserTweets') >= 0 && userTweetsURL.indexOf(res.url()) < 0) {
-                    console.log('res', res.url(), res.ok);
-                    userTweetsURL.push(res.url())
-                    try {
-                        await page.waitForSelector(tweetSelector, { timeout: 5000 });
+        let response = null;
+        let hasMore = true;
+        do {
+            try {
+                response = await page.waitForResponse(res => res.url().indexOf('UserTweets') >= 0 && res.request().method() === 'GET');
+                if (!response.ok()) {
+                    console.log('Failed', await response.text());
+                    await this.logout(page);
+                    const accountDepleted = this.useNextTwitterAccount();
+                    if (accountDepleted) {
+                        console.log('Account depleted.');
+                        return [];
                     }
-                    catch (e) {
-                        console.log('e', e)
-                        // clearTimeout(timeout);
-                        await this.logout(page);
-                        reject()
-                    }
-                    if (!res.ok) {
-                        console.log('Error', await res.text());
-                        resolve(tweets);
-                    }
-                    const result = await res.json();
-                    const content = this.parser.parseTimelineTweetsV2(result);
-                    tweets = [...tweets, ...content.tweets];
-                    await page.evaluate(() => {
-                        window.scrollTo(0, document.body.scrollHeight)
-                    });
-                    // resetTimeout();
+                    console.log('switchig account...', this._currentTwitterAccount)
+                    return this.scrap(browser, page, username);
                 }
-            })
-            await this.redirect(page, `https://x.com/${username}`);
-            console.log("Scraping tweets...");
-        })
+
+                const responseData = await response.json();
+                const content = this.parser.parseTimelineTweetsV2(responseData);
+                tweets = [...tweets, ...content.tweets];
+                hasMore = this.hasMoreTweets(responseData);
+                if (hasMore) {
+                    await this.sleep(1000)
+                    await page.evaluate(() => {
+                        window.scrollTo(0, document.body.scrollHeight);
+                    });
+                }
+            }
+            catch (e) {
+                console.log(e);
+                await this.logout(page);
+                const accountDepleted = !this.useNextTwitterAccount();
+                if (accountDepleted) {
+                    console.log('Account depleted.');
+                    return [];
+                }
+                return this.scrapTweetsByUsername(username);
+            }
+
+        } while (hasMore)
+        return tweets;
     }
 
     private async enterUserName(page: Page, username: string) {
@@ -183,8 +158,11 @@ export default class TwitterScraper {
         return page.goto(url);
     }
 
-    private useNextTwitterAccount() {
-
+    private useNextTwitterAccount(): boolean {
+        const newIndex = this._currentTwitterAccountIndex++;
+        if (newIndex >= this._config.twitterAccounts.length) return true;
+        this._currentTwitterAccount = this._config.twitterAccounts[newIndex];
+        return false;
     }
 
     private sleep(ms: number) {
