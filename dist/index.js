@@ -513,15 +513,18 @@ define("@scom/scom-scraper/twitter/twitterScraper.ts", ["require", "exports", "p
         hasMoreTweets(data) {
             const instructions = data.data.user.result.timeline_v2.timeline.instructions;
             const timelineAddEntries = instructions.filter(v => v.type === "TimelineAddEntries");
+            console.log('timelineAddEntries', timelineAddEntries);
             if (timelineAddEntries.length === 0)
                 return false;
             return timelineAddEntries[0].entries?.length > 2;
         }
         async scrap(browser, page, username) {
             let tweets = [];
-            console.log('scrap');
+            console.log('scrap', this._currentTwitterAccount);
+            console.log("Logging in...");
             await this.login(page);
             await page.waitForNavigation();
+            console.log("Redirecting to target page...");
             await this.redirect(page, `https://x.com/${username}`);
             let response = null;
             let hasMore = true;
@@ -544,6 +547,7 @@ define("@scom/scom-scraper/twitter/twitterScraper.ts", ["require", "exports", "p
                     tweets = [...tweets, ...content.tweets];
                     hasMore = this.hasMoreTweets(responseData);
                     if (hasMore) {
+                        console.log("Scrolling down");
                         await this.sleep(1000);
                         await page.evaluate(() => {
                             window.scrollTo(0, document.body.scrollHeight);
@@ -553,7 +557,7 @@ define("@scom/scom-scraper/twitter/twitterScraper.ts", ["require", "exports", "p
                 catch (e) {
                     console.log(e);
                     await this.logout(page);
-                    const accountDepleted = !this.useNextTwitterAccount();
+                    const accountDepleted = this.useNextTwitterAccount();
                     if (accountDepleted) {
                         console.log('Account depleted.');
                         return [];

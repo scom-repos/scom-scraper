@@ -46,15 +46,18 @@ export default class TwitterScraper {
     private hasMoreTweets(data: any) {
         const instructions = data.data.user.result.timeline_v2.timeline.instructions;
         const timelineAddEntries = instructions.filter(v => v.type === "TimelineAddEntries");
+        console.log('timelineAddEntries', timelineAddEntries)
         if (timelineAddEntries.length === 0) return false;
         return timelineAddEntries[0].entries?.length > 2;
     }
 
     private async scrap(browser: Browser, page: Page, username: string): Promise<ITweet[]> {
         let tweets: ITweet[] = [];
-        console.log('scrap')
+        console.log('scrap', this._currentTwitterAccount);
+        console.log("Logging in...");
         await this.login(page);
         await page.waitForNavigation();
+        console.log("Redirecting to target page...");
         await this.redirect(page, `https://x.com/${username}`);
 
         let response = null;
@@ -79,6 +82,7 @@ export default class TwitterScraper {
                 tweets = [...tweets, ...content.tweets];
                 hasMore = this.hasMoreTweets(responseData);
                 if (hasMore) {
+                    console.log("Scrolling down");
                     await this.sleep(1000)
                     await page.evaluate(() => {
                         window.scrollTo(0, document.body.scrollHeight);
@@ -88,7 +92,7 @@ export default class TwitterScraper {
             catch (e) {
                 console.log(e);
                 await this.logout(page);
-                const accountDepleted = !this.useNextTwitterAccount();
+                const accountDepleted = this.useNextTwitterAccount();
                 if (accountDepleted) {
                     console.log('Account depleted.');
                     return [];
