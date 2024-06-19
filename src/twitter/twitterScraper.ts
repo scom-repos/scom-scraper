@@ -111,8 +111,14 @@ export default class TwitterScraper {
                 return this.scrapTweetsByUsername(username);
             }
 
-        } while (hasMore)
-        return maxTweets ? tweets.slice(0, maxTweets) : tweets;
+        } while (hasMore);
+        if (maxTweets) {
+            tweets = tweets.slice(0, maxTweets);
+        }
+        if (since) {
+            tweets = tweets.filter(v => (v.timestamp * 1000) >= since);
+        }
+        return tweets;
     }
 
     private async enterUserName(page: Page, username: string) {
