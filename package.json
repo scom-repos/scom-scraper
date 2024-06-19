@@ -15,8 +15,6 @@
       "typescript": "5.2.2"
   },
   "scripts": {
-      "build": "rm -rf dist && rm -rf lib && rm -rf pluginTypes && rm -rf types && npx @ijstech/compiler && tsc",
-      "test": "npm run build && node lib/index.js",
-      "start": "ts-node ./test/test.ts"
+      "build": "rm -rf dist && rm -rf lib && rm -rf pluginTypes && rm -rf types && npx @ijstech/compiler && tsc"
   }
 }

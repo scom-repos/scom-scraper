@@ -5,16 +5,10 @@ services:
     image: node:18
     volumes:
       - .:/app
-    command: bash -c "cd /app && rm -rf node_modules && rm -f package-lock.json && npm i"    
-  build: 
+    command: bash -c "cd /app && rm -rf node_modules && rm -f package-lock.json && npm i"
+  build:
     user: node
     image: node:18
     volumes:
       - .:/app
-    command: bash -c "cd /app && npm run build"   
-  test:
-    user: node
-    image: node:18
-    volumes:
-      - .:/app
-    command: bash -c "cd /app && npm run test"                  
+    command: bash -c "cd /app && npm run build"

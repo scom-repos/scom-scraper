@@ -1,16 +1,31 @@
-import { IScraperConfig, ITweet, ITwitterConfig } from "./interface";
-import TwitterScraper from "./twitter/twitterScraper";
+import puppeteer, { Page, Browser } from "puppeteer";
 
 export default class ScraperManager {
-    private _twitterScraper: TwitterScraper;
+    constructor() {}
 
-    constructor(config: IScraperConfig) {
-        this._twitterScraper = new TwitterScraper(config.twitterConfig);
-    }
-
-    scrapTweetsByUsername(username: string, since: number = 0, maxTweets?: number): Promise<ITweet[]> {
-        return this._twitterScraper.scrapTweetsByUsername(username, since, maxTweets);
+    async getBrowserAndPage() {
+        const browser = await puppeteer.launch({
+            headless: true,
+            args: ["--no-sandbox"],
+            defaultViewport: {
+                width: 1920,
+                height: 1080
+            }
+        });
+        try {
+            const page: Page = await browser.newPage();
+            await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36');
+            await page.setJavaScriptEnabled(true);
+            return {
+                browser,
+                page
+            }
+        } catch {
+            console.log('closing browser');
+            await browser.close();
+            return null;
+        }
     }
 }
 
-export {ITweet, ITwitterConfig, IScraperConfig};
+export { Browser, Page }
