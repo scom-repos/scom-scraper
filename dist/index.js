@@ -486,7 +486,7 @@ define("@scom/scom-scraper/twitter/twitterScraper.ts", ["require", "exports", "p
             }
             this.parser = new parser_1.default();
         }
-        async scrapTweetsByUsername(username) {
+        async scrapTweetsByUsername(username, since = 0, maxTweets) {
             const browser = await puppeteer_1.default.launch({
                 headless: true,
                 args: ["--no-sandbox"],
@@ -499,7 +499,7 @@ define("@scom/scom-scraper/twitter/twitterScraper.ts", ["require", "exports", "p
                 const page = await browser.newPage();
                 await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36');
                 await page.setJavaScriptEnabled(true);
-                const tweets = await this.scrap(browser, page, username);
+                const tweets = await this.scrap(browser, page, username, since, maxTweets);
                 return tweets;
             }
             catch (e) {
@@ -518,7 +518,7 @@ define("@scom/scom-scraper/twitter/twitterScraper.ts", ["require", "exports", "p
                 return false;
             return timelineAddEntries[0].entries?.length > 2;
         }
-        async scrap(browser, page, username) {
+        async scrap(browser, page, username, since = 0, maxTweets) {
             let tweets = [];
             console.log('scrap', this._currentTwitterAccount);
             console.log("Logging in...");
@@ -551,7 +551,12 @@ define("@scom/scom-scraper/twitter/twitterScraper.ts", ["require", "exports", "p
                     const responseData = await response.json();
                     const content = this.parser.parseTimelineTweetsV2(responseData);
                     tweets = [...tweets, ...content.tweets];
-                    hasMore = this.hasMoreTweets(responseData);
+                    let isTimeValid = true;
+                    if (since && tweets.length) {
+                        const oldestTweet = tweets[tweets.length - 1];
+                        isTimeValid = (oldestTweet.timestamp * 1000) > since;
+                    }
+                    hasMore = isTimeValid && (!maxTweets || tweets.length < maxTweets) && this.hasMoreTweets(responseData);
                     if (hasMore) {
                         console.log("Scrolling down");
                         await this.sleep(2000);
@@ -571,7 +576,7 @@ define("@scom/scom-scraper/twitter/twitterScraper.ts", ["require", "exports", "p
                     return this.scrapTweetsByUsername(username);
                 }
             } while (hasMore);
-            return tweets;
+            return maxTweets ? tweets.slice(0, maxTweets) : tweets;
         }
         async enterUserName(page, username) {
             const usernameSelector = '[name="text"]';
@@ -649,8 +654,8 @@ define("@scom/scom-scraper", ["require", "exports", "@scom/scom-scraper/twitter/
         constructor(config) {
             this._twitterScraper = new twitterScraper_1.default(config.twitterConfig);
         }
-        scrapTweetsByUsername(username) {
-            return this._twitterScraper.scrapTweetsByUsername(username);
+        scrapTweetsByUsername(username, since = 0, maxTweets) {
+            return this._twitterScraper.scrapTweetsByUsername(username, since, maxTweets);
         }
     }
     exports.default = ScraperManager;

@@ -8,8 +8,8 @@ export default class ScraperManager {
         this._twitterScraper = new TwitterScraper(config.twitterConfig);
     }
 
-    scrapTweetsByUsername(username: string): Promise<ITweet[]> {
-        return this._twitterScraper.scrapTweetsByUsername(username);
+    scrapTweetsByUsername(username: string, since: number = 0, maxTweets?: number): Promise<ITweet[]> {
+        return this._twitterScraper.scrapTweetsByUsername(username, since, maxTweets);
     }
 }
 

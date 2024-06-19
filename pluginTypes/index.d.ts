@@ -98,7 +98,7 @@ declare module "@scom/scom-scraper/twitter/twitterScraper.ts" {
         private _currentTwitterAccount;
         private _currentTwitterAccountIndex;
         constructor(config: ITwitterConfig);
-        scrapTweetsByUsername(username: string): Promise<ITweet[]>;
+        scrapTweetsByUsername(username: string, since?: number, maxTweets?: number): Promise<ITweet[]>;
         private hasMoreTweets;
         private scrap;
         private enterUserName;
@@ -117,7 +117,7 @@ declare module "@scom/scom-scraper" {
     export default class ScraperManager {
         private _twitterScraper;
         constructor(config: IScraperConfig);
-        scrapTweetsByUsername(username: string): Promise<ITweet[]>;
+        scrapTweetsByUsername(username: string, since?: number, maxTweets?: number): Promise<ITweet[]>;
     }
     export { ITweet, ITwitterConfig, IScraperConfig };
 }

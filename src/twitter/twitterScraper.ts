@@ -18,7 +18,7 @@ export default class TwitterScraper {
         this.parser = new Parser();
     }
 
-    async scrapTweetsByUsername(username: string): Promise<ITweet[]> {
+    async scrapTweetsByUsername(username: string, since: number = 0, maxTweets?: number): Promise<ITweet[]> {
         const browser = await puppeteer.launch({
             headless: true,
             args: ["--no-sandbox"],
@@ -31,7 +31,7 @@ export default class TwitterScraper {
             const page: Page = await browser.newPage();
             await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36');
             await page.setJavaScriptEnabled(true);
-            const tweets = await this.scrap(browser, page, username);
+            const tweets = await this.scrap(browser, page, username, since, maxTweets);
             return tweets;
         }
         catch (e) {
@@ -51,7 +51,7 @@ export default class TwitterScraper {
         return timelineAddEntries[0].entries?.length > 2;
     }
 
-    private async scrap(browser: Browser, page: Page, username: string): Promise<ITweet[]> {
+    private async scrap(browser: Browser, page: Page, username: string, since: number = 0, maxTweets?: number): Promise<ITweet[]> {
         let tweets: ITweet[] = [];
         console.log('scrap', this._currentTwitterAccount);
         console.log("Logging in...");
@@ -86,7 +86,12 @@ export default class TwitterScraper {
                 const responseData = await response.json();
                 const content = this.parser.parseTimelineTweetsV2(responseData);
                 tweets = [...tweets, ...content.tweets];
-                hasMore = this.hasMoreTweets(responseData);
+                let isTimeValid = true;
+                if (since && tweets.length) {
+                    const oldestTweet = tweets[tweets.length - 1];
+                    isTimeValid = (oldestTweet.timestamp * 1000) > since;
+                }
+                hasMore = isTimeValid && (!maxTweets || tweets.length < maxTweets) && this.hasMoreTweets(responseData);
                 if (hasMore) {
                     console.log("Scrolling down");
                     await this.sleep(2000)
@@ -107,7 +112,7 @@ export default class TwitterScraper {
             }
 
         } while (hasMore)
-        return tweets;
+        return maxTweets ? tweets.slice(0, maxTweets) : tweets;
     }
 
     private async enterUserName(page: Page, username: string) {
