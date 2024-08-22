@@ -1,3 +1,7 @@
+define("@scom/scom-scraper/types.ts", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+});
 define("@scom/scom-scraper", ["require", "exports", "puppeteer"], function (require, exports, puppeteer_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -25,7 +29,7 @@ define("@scom/scom-scraper", ["require", "exports", "puppeteer"], function (requ
             return this.page.type(selector, value, { delay });
         }
         // Page Behavior
-        async goTo(url, timeout = 30000, waitUntil = 'domcontentloaded') {
+        async goto(url, timeout = 30000, waitUntil = 'domcontentloaded') {
             return this.page.goto(url, { timeout, waitUntil });
         }
         async waitForNavigation(timeout = 30000, waitUntil = 'domcontentloaded') {
@@ -48,8 +52,8 @@ define("@scom/scom-scraper", ["require", "exports", "puppeteer"], function (requ
         async waitForResponse(urlOrPredict) {
             return this.page.waitForResponse(urlOrPredict);
         }
-        removeAllListeners() {
-            return this.page.removeAllListeners();
+        removeAllListeners(eventType) {
+            return this.page.removeAllListeners(eventType);
         }
         on(event, callback) {
             return this.page.on(event, callback);
@@ -58,7 +62,7 @@ define("@scom/scom-scraper", ["require", "exports", "puppeteer"], function (requ
         async getCookies() {
             return this.page.cookies();
         }
-        async setCookies(...cookies) {
+        async setCookie(...cookies) {
             return this.page.setCookie(...cookies);
         }
         // Scraper Manager Lifecycle

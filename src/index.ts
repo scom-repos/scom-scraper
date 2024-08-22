@@ -11,10 +11,10 @@ interface IScraperManager {
     scrollToBottom: (delay?: number) => Promise<void>;
     waitForRequest: (urlOrPredict: string | ((response: any) => Promise<boolean>)) => Promise<any>;
     waitForResponse: (urlOrPredict: string | ((response: any) => Promise<boolean>)) => Promise<any>;
-    removeAllListener: () => void;
-    on: (event: IPageEvent, callback: () => Promise<any>) => void;
+    removeAllListener: (eventType?: IPageEvent) => void;
+    on: (event: IPageEvent, callback: (response: any) => Promise<any>) => void;
     getCookies: () => Promise<ICookie[]>;
-    setCookies: (...cookies: ICookie[]) => Promise<void>;
+    setCookie: (...cookies: ICookie[]) => Promise<void>;
     destroy: () => Promise<void>
 }
 
@@ -52,7 +52,7 @@ export default class ScraperManager {
     }
 
     // Page Behavior
-    async goTo(url: string, timeout: number = 30000, waitUntil: IPageLifeCycle | IPageLifeCycle[] = 'domcontentloaded') {
+    async goto(url: string, timeout: number = 30000, waitUntil: IPageLifeCycle | IPageLifeCycle[] = 'domcontentloaded') {
         return this.page.goto(url, { timeout, waitUntil });
     }
 
@@ -81,11 +81,11 @@ export default class ScraperManager {
         return this.page.waitForResponse(urlOrPredict);
     }
 
-    removeAllListeners() {
-        return this.page.removeAllListeners();
+    removeAllListeners(eventType?: IPageEvent) {
+        return this.page.removeAllListeners(eventType);
     }
 
-    on(event: IPageEvent, callback: () => any) {
+    on(event: IPageEvent, callback: (response: any) => Promise<any>) {
         return this.page.on(event, callback);
     }
 
@@ -94,7 +94,7 @@ export default class ScraperManager {
         return this.page.cookies();
     }
 
-    async setCookies(...cookies: ICookieParam[]) {
+    async setCookie(...cookies: ICookieParam[]) {
         return this.page.setCookie(...cookies);
     }
 
