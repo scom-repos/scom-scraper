@@ -40,11 +40,20 @@ export interface ICookie {
     partitionKeyOpaque?: boolean;
 }
 
+export interface IScraperKeyboard {
+    up: (key: IKeyInput) => Promise<void>;
+    down: (key: IKeyInput) => Promise<void>;
+    press: (key: IKeyInput, delay?: number) => Promise<void>;
+    type: (text: string) => Promise<void>;
+    sendCharacter: (char: string) => Promise<void>;
+}
+
 export interface IScraperEngine {
+    keyboard: IScraperKeyboard;
     init: () => Promise<void>;
     click: (selector: string) => Promise<void>;
     type: (selector: string, value: string, timeout?: number, delay?: number) => Promise<void>;
-    goTo: (url: string, timeout?: number, waitUntil?: IPageLifeCycle | IPageLifeCycle[]) => Promise<any>;
+    goto: (url: string, timeout?: number, waitUntil?: IPageLifeCycle | IPageLifeCycle[]) => Promise<any>;
     waitForNavigation: (timeout?: number, waitUntil?: IPageLifeCycle | IPageLifeCycle[]) => Promise<any>;
     waitForSelector: (selector: string, timeout?: number) => Promise<any>;
     scrollToBottom: (delay?: number) => Promise<void>;
