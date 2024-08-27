@@ -1,7 +1,46 @@
-import puppeteer, { Page, Browser } from "puppeteer";
-import { ICookie, ICookieParam, IKeyboardAction, IKeyInput, IPageEvent, IPageLifeCycle } from "./types";
+export type IPageLifeCycle = 'domcontentloaded' | 'load' | 'networkidle0' | 'networkidle2';
+export type IKeyboardAction = 'up' | 'down' | 'press' | 'sendCharacter';
+export type IKeyInput = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | 'Power' | 'Eject' | 'Abort' | 'Help' | 'Backspace' | 'Tab' | 'Numpad5' | 'NumpadEnter' | 'Enter' | '\r' | '\n' | 'ShiftLeft' | 'ShiftRight' | 'ControlLeft' | 'ControlRight' | 'AltLeft' | 'AltRight' | 'Pause' | 'CapsLock' | 'Escape' | 'Convert' | 'NonConvert' | 'Space' | 'Numpad9' | 'PageUp' | 'Numpad3' | 'PageDown' | 'End' | 'Numpad1' | 'Home' | 'Numpad7' | 'ArrowLeft' | 'Numpad4' | 'Numpad8' | 'ArrowUp' | 'ArrowRight' | 'Numpad6' | 'Numpad2' | 'ArrowDown' | 'Select' | 'Open' | 'PrintScreen' | 'Insert' | 'Numpad0' | 'Delete' | 'NumpadDecimal' | 'Digit0' | 'Digit1' | 'Digit2' | 'Digit3' | 'Digit4' | 'Digit5' | 'Digit6' | 'Digit7' | 'Digit8' | 'Digit9' | 'KeyA' | 'KeyB' | 'KeyC' | 'KeyD' | 'KeyE' | 'KeyF' | 'KeyG' | 'KeyH' | 'KeyI' | 'KeyJ' | 'KeyK' | 'KeyL' | 'KeyM' | 'KeyN' | 'KeyO' | 'KeyP' | 'KeyQ' | 'KeyR' | 'KeyS' | 'KeyT' | 'KeyU' | 'KeyV' | 'KeyW' | 'KeyX' | 'KeyY' | 'KeyZ' | 'MetaLeft' | 'MetaRight' | 'ContextMenu' | 'NumpadMultiply' | 'NumpadAdd' | 'NumpadSubtract' | 'NumpadDivide' | 'F1' | 'F2' | 'F3' | 'F4' | 'F5' | 'F6' | 'F7' | 'F8' | 'F9' | 'F10' | 'F11' | 'F12' | 'F13' | 'F14' | 'F15' | 'F16' | 'F17' | 'F18' | 'F19' | 'F20' | 'F21' | 'F22' | 'F23' | 'F24' | 'NumLock' | 'ScrollLock' | 'AudioVolumeMute' | 'AudioVolumeDown' | 'AudioVolumeUp' | 'MediaTrackNext' | 'MediaTrackPrevious' | 'MediaStop' | 'MediaPlayPause' | 'Semicolon' | 'Equal' | 'NumpadEqual' | 'Comma' | 'Minus' | 'Period' | 'Slash' | 'Backquote' | 'BracketLeft' | 'Backslash' | 'BracketRight' | 'Quote' | 'AltGraph' | 'Props' | 'Cancel' | 'Clear' | 'Shift' | 'Control' | 'Alt' | 'Accept' | 'ModeChange' | ' ' | 'Print' | 'Execute' | '\u0000' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z' | 'Meta' | '*' | '+' | '-' | '/' | ';' | '=' | ',' | '.' | '`' | '[' | '\\' | ']' | "'" | 'Attn' | 'CrSel' | 'ExSel' | 'EraseEof' | 'Play' | 'ZoomOut' | ')' | '!' | '@' | '#' | '$' | '%' | '^' | '&' | '(' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' | 'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z' | ':' | '<' | '_' | '>' | '?' | '~' | '{' | '|' | '}' | '"' | 'SoftLeft' | 'SoftRight' | 'Camera' | 'Call' | 'EndCall' | 'VolumeDown' | 'VolumeUp';
+export type ICookieSameSite = 'Strict' | 'Lax' | 'None';
+export type ICookiePriority = 'Low' | 'Medium' | 'High';
+export type ICookieSourceScheme = 'Unset' | 'NonSecure' | 'Secure';
+export type IPageEvent = "close" | "console" | "domcontentloaded" | "frameattached" | "framedetached" | "framenavigated" | "load" | "metrics" | "pageerror" | "popup" | "requestservedfromcache" | "requestfailed" | "requestfinished" | "response" | "workercreated" | "workerdestroyed"
 
-interface IScraperManager {
+export interface ICookieParam {
+    name: string;
+    value: string;
+    url?: string;
+    domain?: string;
+    path?: string;
+    secure?: boolean;
+    httpOnly?: boolean;
+    sameSite?: ICookieSameSite;
+    expires?: number;
+    priority?: ICookiePriority;
+    sameParty?: boolean;
+    sourceScheme?: ICookieSourceScheme;
+    partitionKey?: string;
+}
+
+export interface ICookie {
+    name: string;
+    value: string;
+    domain: string;
+    path: string;
+    expires: number;
+    size: number;
+    httpOnly: boolean;
+    secure: boolean;
+    session: boolean;
+    sameSite?: ICookieSameSite;
+    priority?: ICookiePriority;
+    sameParty?: boolean;
+    sourceScheme?: ICookieSourceScheme;
+    partitionKey?: string;
+    partitionKeyOpaque?: boolean;
+}
+
+export interface IScraperEngine {
     init: () => Promise<void>;
     click: (selector: string) => Promise<void>;
     type: (selector: string, value: string, timeout?: number, delay?: number) => Promise<void>;
@@ -16,149 +55,4 @@ interface IScraperManager {
     getCookies: () => Promise<ICookie[]>;
     setCookie: (...cookies: ICookie[]) => Promise<void>;
     destroy: () => Promise<void>
-}
-
-export default class ScraperManager {
-
-    private browser: Browser;
-    private page: Page;
-
-    keyboard: ScraperKeyboard;
-
-    constructor() { }
-
-    async init() {
-        this.browser = await puppeteer.launch({
-            headless: true,
-            args: ["--no-sandbox"],
-            defaultViewport: {
-                width: 1920,
-                height: 1080
-            }
-        });
-        this.page = await this.browser.newPage();
-        this.keyboard = new ScraperKeyboard(this.page);
-    }
-
-    // Mouse interaction
-    async click(selector: string) {
-        return this.page.click(selector);
-    }
-
-    // Keyboard interaction
-    async type(selector: string, value: string, timeout: number = 30000, delay: number = 0) {
-        await this.waitForSelector(selector, timeout);
-        return this.page.type(selector, value, { delay })
-    }
-
-    // Page Behavior
-    async goto(url: string, timeout: number = 30000, waitUntil: IPageLifeCycle | IPageLifeCycle[] = 'domcontentloaded') {
-        return this.page.goto(url, { timeout, waitUntil });
-    }
-
-    async waitForNavigation(timeout: number = 30000, waitUntil: IPageLifeCycle | IPageLifeCycle[] = 'domcontentloaded') {
-        return this.page.waitForNavigation({ timeout, waitUntil });
-    }
-
-    async waitForSelector(selector: string, timeout: number = 30000) {
-        return this.page.waitForSelector(selector, { timeout });
-    }
-
-    async scrollToBottom(delay: number = 0) {
-        if(delay > 0)   
-            await this.sleep(delay);
-        await this.page.evaluate(() => {
-            window.scrollTo(0, document.body.scrollHeight);
-        });
-    }
-
-    // Page networking
-    async waitForRequest(urlOrPredict: string | ((response: any) => boolean)) {
-        return this.page.waitForRequest(urlOrPredict)
-    }
-
-    async waitForResponse(urlOrPredict: string | ((response: any) => boolean)) {
-        return this.page.waitForResponse(urlOrPredict);
-    }
-
-    removeAllListeners(eventType?: IPageEvent) {
-        return this.page.removeAllListeners(eventType);
-    }
-
-    on(event: IPageEvent, callback: (response: any) => Promise<any>) {
-        return this.page.on(event, callback);
-    }
-
-    // Page storage
-    async getCookies(): Promise<ICookie[]> {
-        return this.page.cookies();
-    }
-
-    async setCookie(...cookies: ICookieParam[]) {
-        return this.page.setCookie(...cookies);
-    }
-
-    // Scraper Manager Lifecycle
-    async destroy() {
-        await this.page.close();
-        await this.browser.close();
-    }
-
-    // Deprecated
-    async getBrowserAndPage() {
-        const browser = await puppeteer.launch({
-            headless: true,
-            args: ["--no-sandbox"],
-            defaultViewport: {
-                width: 1920,
-                height: 1080
-            }
-        });
-        try {
-            const page: Page = await browser.newPage();
-            await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36');
-            await page.setJavaScriptEnabled(true);
-            return {
-                browser,
-                page
-            }
-        } catch {
-            console.log('closing browser');
-            await browser.close();
-            return null;
-        }
-    }
-
-    private async sleep(time: number) {
-        return new Promise<void>((resolve) => {
-            setTimeout(() => {
-                resolve();
-            }, time);
-        })
-    }
-}
-
-class ScraperKeyboard {
-    private page: Page;
-    constructor(page: Page) { this.page = page; }
-
-    async up(key: IKeyInput) {
-        return this.page.keyboard.up(key)
-    }
-
-    async down(key: IKeyInput) {
-        return this.page.keyboard.down(key)
-    }
-
-    async press(key: IKeyInput, delay: number = 0) {
-        return this.page.keyboard.press(key, { delay });
-    }
-
-    async type(text: string) {
-        return this.page.keyboard.type(text);
-    }
-
-    async sendCharacter(char: string) {
-        return this.page.keyboard.sendCharacter(char);
-    }
 }

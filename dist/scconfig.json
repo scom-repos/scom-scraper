@@ -2,7 +2,5 @@
     "name": "@scom/scom-scraper",
     "type": "widget",
     "version": "0.1.0",
-    "dependencies": [
-        "puppeteer"
-    ]
+    "dependencies": []
 }

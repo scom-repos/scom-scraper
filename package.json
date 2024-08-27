@@ -5,9 +5,7 @@
   "plugin": "dist/index.js",
   "pluginTypes": "pluginTypes/index.d.ts",
   "types": "pluginTypes/index.d.ts",
-  "dependencies": {
-    "puppeteer": "22.9.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@ijstech/compiler": "^0.1.35",
     "@types/node": "^18.18.6",
