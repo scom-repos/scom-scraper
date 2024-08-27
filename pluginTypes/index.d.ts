@@ -57,7 +57,7 @@ declare module "@scom/scom-scraper" {
         scrollToBottom: (delay?: number) => Promise<void>;
         waitForRequest: (urlOrPredict: string | ((response: any) => Promise<boolean>)) => Promise<any>;
         waitForResponse: (urlOrPredict: string | ((response: any) => Promise<boolean>)) => Promise<any>;
-        removeAllListener: (eventType?: IPageEvent) => void;
+        removeAllListeners: (eventType?: IPageEvent) => void;
         on: (event: IPageEvent, callback: (response: any) => Promise<any>) => void;
         getCookies: () => Promise<ICookie[]>;
         setCookie: (...cookies: ICookie[]) => Promise<void>;
