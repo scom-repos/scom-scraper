@@ -59,6 +59,7 @@ declare module "@scom/scom-scraper" {
         waitForResponse: (urlOrPredict: string | ((response: any) => Promise<boolean>)) => Promise<any>;
         removeAllListeners: (eventType?: IPageEvent) => void;
         on: (event: IPageEvent, callback: (response: any) => Promise<any>) => void;
+        evaluate: (fn: () => Promise<any>) => Promise<any>;
         getCookies: () => Promise<ICookie[]>;
         setCookie: (...cookies: ICookie[]) => Promise<void>;
         destroy: () => Promise<void>;
