@@ -1,4 +1,4 @@
-define("@scom/scom-scraper", ["require", "exports"], function (require, exports) {
+define("@scom/scom-scraper-sdk", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
 });

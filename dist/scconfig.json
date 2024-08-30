@@ -1,5 +1,5 @@
 {
-    "name": "@scom/scom-scraper",
+    "name": "@scom/scom-scraper-sdk",
     "type": "widget",
     "version": "0.1.2",
     "dependencies": []
